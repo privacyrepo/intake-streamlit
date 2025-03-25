@@ -85,33 +85,69 @@ def display_field_groups(doc_type, address_fields, owner_fields, other_fields, i
     
     # Display other fields
     if other_fields:
-        if address_fields or owner_fields:
-            st.write("**Other Information:**")
-        
-        cols = st.columns(2)
-        col_idx = 0
-        for field, value in sorted(other_fields.items()):
-            if isinstance(value, dict):
-                # Handle any other nested structures
-                st.write(f"**{field.title()}:**")
-                subcols = st.columns(2)
-                subcol_idx = 0
-                for subfield, subvalue in sorted(value.items()):
-                    subcols[subcol_idx].text_input(
-                        subfield.title(),
-                        subvalue,
-                        disabled=True,
-                        key=f"result_{field}_{subfield}{key_suffix}"
-                    )
-                    subcol_idx = (subcol_idx + 1) % 2
-            else:
+        # Display contact information first if present
+        contact_fields = {k: v for k, v in other_fields.items() if k.startswith("Contact -")}
+        if contact_fields:
+            st.write("**Contact Information:**")
+            cols = st.columns(2)
+            col_idx = 0
+            for field, value in sorted(contact_fields.items()):
+                field_name = field.replace("Contact - ", "")
                 cols[col_idx].text_input(
-                    field.title(),
+                    field_name,
                     value,
                     disabled=True,
-                    key=f"result_{field}{key_suffix}"
+                    key=f"result_contact_{field_name}{key_suffix}"
                 )
                 col_idx = (col_idx + 1) % 2
+        
+        # Display additional information (yes/no questions)
+        additional_fields = {k: v for k, v in other_fields.items() if k.startswith("Additional -")}
+        if additional_fields:
+            st.write("**Additional Information:**")
+            cols = st.columns(2)
+            col_idx = 0
+            for field, value in sorted(additional_fields.items()):
+                field_name = field.replace("Additional - ", "")
+                cols[col_idx].text_input(
+                    field_name,
+                    value,
+                    disabled=True,
+                    key=f"result_additional_{field_name}{key_suffix}"
+                )
+                col_idx = (col_idx + 1) % 2
+        
+        # Display remaining fields
+        remaining_fields = {k: v for k, v in other_fields.items() 
+                          if not k.startswith(("Contact -", "Additional -"))}
+        if remaining_fields:
+            if address_fields or owner_fields:
+                st.write("**Other Information:**")
+            
+            cols = st.columns(2)
+            col_idx = 0
+            for field, value in sorted(remaining_fields.items()):
+                if isinstance(value, dict):
+                    # Handle any other nested structures
+                    st.write(f"**{field.title()}:**")
+                    subcols = st.columns(2)
+                    subcol_idx = 0
+                    for subfield, subvalue in sorted(value.items()):
+                        subcols[subcol_idx].text_input(
+                            subfield.title(),
+                            subvalue,
+                            disabled=True,
+                            key=f"result_{field}_{subfield}{key_suffix}"
+                        )
+                        subcol_idx = (subcol_idx + 1) % 2
+                else:
+                    cols[col_idx].text_input(
+                        field.title(),
+                        value,
+                        disabled=True,
+                        key=f"result_{field}{key_suffix}"
+                    )
+                    col_idx = (col_idx + 1) % 2
 
 async def process_documents_with_gpt4o(files) -> Dict[str, Any]:
     """
@@ -206,6 +242,53 @@ async def process_documents_with_gpt4o(files) -> Dict[str, Any]:
 
 st.header("Document Upload")
 
+# Add contact information section first
+st.subheader("📞 Contact Information")
+contact_col1, contact_col2 = st.columns(2)
+email = contact_col1.text_input("Email Address", key="email")
+phone = contact_col2.text_input("Phone Number", key="phone")
+
+# Add yes/no questions section
+st.subheader("📋 Additional Information")
+questions_col1, questions_col2 = st.columns(2)
+
+owned_by_self = questions_col1.radio(
+    "Is this vehicle owned and operated only by yourself or spouse?",
+    options=["Yes", "No"],
+    key="owned_by_self"
+)
+
+named_drivers = questions_col2.radio(
+    "Is this vehicle operated by approved Named Drivers?",
+    options=["Yes", "No"],
+    key="named_drivers"
+)
+
+workers_comp = questions_col1.radio(
+    "Do you currently carry workers compensation?",
+    options=["Yes", "No"],
+    key="workers_comp"
+)
+
+radio_base = questions_col2.radio(
+    "Do you obtain fares via Radio Base?",
+    options=["Yes", "No"],
+    key="radio_base"
+)
+
+# Store user input in session state to persist it
+if 'user_input' not in st.session_state:
+    st.session_state.user_input = {}
+
+st.session_state.user_input.update({
+    "Contact - Email": email,
+    "Contact - Phone": phone,
+    "Additional - Vehicle Owned By Self/Spouse": owned_by_self,
+    "Additional - Has Named Drivers": named_drivers,
+    "Additional - Has Workers Compensation": workers_comp,
+    "Additional - Obtains Fares via Radio Base": radio_base
+})
+
 # Create a single multi-file uploader widget
 uploaded_files = st.file_uploader("Upload all documents", type=["jpg", "jpeg", "png", "pdf"], accept_multiple_files=True)
 
@@ -233,6 +316,9 @@ if uploaded_files:
                 
                 # Create a flattened DataFrame for editing
                 flat_data = {}
+                
+                # Add user input data first
+                flat_data.update(st.session_state.user_input)
                 
                 # Handle any JSON structure that might come back from the API
                 try:
@@ -451,8 +537,30 @@ if uploaded_files:
                             # Convert to final data format
                             final_data = edited_values
                             
+                            # Add the user input data to the final data
+                            final_data.update(st.session_state.user_input)
+                            
                             # Reorganize data back into document types
                             organized_data = {}
+                            
+                            # Add contact and additional info as a separate section
+                            contact_data = {
+                                "document_type": "Contact Information",
+                                "data": {
+                                    "email": st.session_state.user_input["Contact - Email"],
+                                    "phone": st.session_state.user_input["Contact - Phone"]
+                                }
+                            }
+                            
+                            additional_data = {
+                                "document_type": "Additional Information",
+                                "data": {
+                                    "vehicle_owned_by_self": st.session_state.user_input["Additional - Vehicle Owned By Self/Spouse"],
+                                    "has_named_drivers": st.session_state.user_input["Additional - Has Named Drivers"],
+                                    "has_workers_compensation": st.session_state.user_input["Additional - Has Workers Compensation"],
+                                    "obtains_fares_via_radio_base": st.session_state.user_input["Additional - Obtains Fares via Radio Base"]
+                                }
+                            }
                             
                             # Remember original data structure
                             original_structure = {}
@@ -527,6 +635,11 @@ if uploaded_files:
                             # Convert to documents array format if needed
                             if "documents" in results:
                                 final_organized_data = {"documents": []}
+                                # Add contact and additional info first
+                                final_organized_data["documents"].append(contact_data)
+                                final_organized_data["documents"].append(additional_data)
+                                
+                                # Add the rest of the documents
                                 for doc_type, data in organized_data.items():
                                     if isinstance(data, list):
                                         # If it's already a list, handle each item
@@ -542,6 +655,10 @@ if uploaded_files:
                                             "data": data
                                         })
                                 organized_data = final_organized_data
+                            else:
+                                # If not using documents array format, add contact and additional info as top-level keys
+                                organized_data["contact_information"] = contact_data["data"]
+                                organized_data["additional_information"] = additional_data["data"]
                             
                             st.success("✅ Application submitted successfully!")
                             
