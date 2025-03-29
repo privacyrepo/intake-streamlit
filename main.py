@@ -36,10 +36,42 @@ LANG = {
         "processing_spinner": "Processing all documents...", "processing_success": "✅ Documents processed successfully!", "processing_failed": "Processing failed. See error above.",
         "review_title": "📝 Review and Edit Extracted Information", "submit_success": "✅ Application submitted successfully!", "upload_label": "Upload all documents",
         "other_driver_file_label": "Other driver file: {filename}",
-        "system_message": ("You are a document processing assistant that extracts structured information from multiple documents. For each document, you need to identify the document type, return a JSON object with exactly three keys: \"type\", \"filename\", and \"data\".\n\nExtract the following based on the document type:\n- For \"NYS Driver License\": extract \"license_number\", \"first_name\", \"middle_name\" (if present), \"last_name\", \"address\", \"city\", \"state\", and \"zip_code\".\n- For \"TLC Hack License\": extract \"license_number\", \"first_name\", and \"last_name\".\n- For \"Vehicle Certificate of Title\" or \"Bill of Sale\": extract \"VIN\", \"vehicle_make\", \"vehicle_model\", \"vehicle_year\", and \"owner_name\".\n- For \"Radio Base Certification Letter\": extract \"radio_base_name\".\n- For \"Other Driver's License\" (if exist): extract \"license_number\", \"first_name\", \"middle_name\" (if present), \"last_name\", \"address\", \"city\", \"state\", and \"zip_code\".\n\nReturn a single combined JSON object with a \"documents\" array containing these document objects. Ensure the field names are consistent and, for address, return individual fields rather than a combined string.")
+        "system_message": ("""You are a document processing assistant that extracts structured information from multiple documents. For each document, you need to identify the document type based on its VISUAL CONTENT (not the filename), and return a JSON object with exactly three keys: "type", "filename", and "data".
+
+Extract the following based on the document type:
+
+- For "NYS Driver License": extract "license_number", "first_name", "middle_name" (if present), "last_name", "address", "city", "state", and "zip_code". This is a photo ID with New York State license information.
+
+- For "TLC Hack License": extract "license_number", "first_name", and "last_name". This is a Taxi & Limousine Commission license for drivers, usually with TLC branding.
+
+- For "Vehicle Certificate of Title" or "Bill of Sale": extract "VIN", "vehicle_make", "vehicle_model", "vehicle_year", and "owner_name". The title has official state header and ownership details.
+
+- For "Radio Base Certification Letter": extract "radio_base_name". This is a business letter with letterhead confirming the driver's affiliation with a radio dispatch base. It may have official company logo, signature, and confirmation language.
+
+- For "Other Driver's License" (if exist): extract "license_number", "first_name", "middle_name" (if present), "last_name", "address", "city", "state", and "zip_code".
+
+PAY SPECIAL ATTENTION to identifying Radio Base Certification Letters correctly - these are formal business letters confirming the driver works with a dispatch service.
+
+Return a single combined JSON object with a "documents" array containing these document objects. Ensure the field names are consistent and, for address, return individual fields rather than a combined string. DO NOT include document types that are not present in the images.""")
     },
     "Español": { # Add Spanish translations similarly...
-        "pull_mvr_button": "Obtener Registro(s) MVR", "mvr_section_title": "Resultados del Registro de Vehículos Motorizados (MVR)", "mvr_pull_success": "✅ Registro MVR obtenido con éxito para Licencia: {license_number}", "mvr_pull_error": "❌ Error al obtener MVR para Licencia: {license_number} - {error_message}", "mvr_pull_inprogress": "Obteniendo MVR para Licencia: {license_number}...", "mvr_api_key_missing": "Clave API de MVRNow no configurada. Configure MVRNOW_API_KEY en los secretos.", "mvr_view_raw": "Ver Datos MVR Crudos (JSON)", "mvr_tab_driver": "Info. Conductor", "mvr_tab_license": "Detalles Licencia", "mvr_tab_events": "Eventos", "mvr_tab_messages": "Mensajes", "mvr_field_name": "Nombre", "mvr_field_dob": "Fecha de Nacimiento", "mvr_field_age": "Edad", "mvr_field_gender": "Género", "mvr_field_address": "Dirección", "mvr_field_eyes": "Color de Ojos", "mvr_field_height": "Altura", "mvr_field_lic_num": "Número de Licencia", "mvr_field_class": "Clase", "mvr_field_class_desc": "Descripción de Clase", "mvr_field_issued": "Emitida", "mvr_field_expires": "Expira", "mvr_field_status": "Estado", "mvr_field_prob_expires": "Expira Probatoria", "mvr_event_subtype": "Tipo", "mvr_event_date": "Fecha", "mvr_event_location": "Lugar", "mvr_event_description": "Descripción", "mvr_event_state_desc": "Descripción Estatal", "mvr_event_points": "Puntos", "mvr_event_conviction": "Fecha Condena", "mvr_event_fine": "Multa", "mvr_event_action_clear": "Fecha Liquidación", "mvr_event_action_reason": "Razón Liquidación", "mvr_no_events": "No se encontraron eventos.", "mvr_no_messages": "No se encontraron mensajes.", "app_title": "Solicitud de Seguro TLC", "app_description": ("Esta solicitud te permite subir varios documentos a la vez:\n- **Licencia de Conducir del Estado de Nueva York (NYS)**\n- **Licencia de Conductor TLC**\n- **Certificado de Título del Vehículo o Factura de Venta**\n- **Carta de Certificación de la Base de Radio**\n\nTodos los documentos se procesan juntos mediante GPT‑4o para extraer datos estructurados. Una vez procesados, podrás revisar y editar los datos extraídos antes de enviar tu solicitud."), "additional_info_title": "Información Adicional", "owned_by_self_question": "¿Este vehículo es propiedad tuya y SOLO lo conduces tú o tu cónyuge?", "named_drivers_question": "¿Este vehículo es conducido por conductores nombrados aprobados?", "other_driver_upload_label": "Sube la Licencia de Conducir del Otro Conductor", "yes_options": ["Sí", "No"], "contact_label": "Información de Contacto", "contact_email_label": "Correo Electrónico", "contact_phone_label": "Número de Teléfono", "process_button": "Procesar Todos los Documentos", "submit_button": "Enviar Solicitud", "view_raw": "Ver Datos Extraídos (JSON)", "processing_spinner": "Procesando todos los documentos...", "processing_success": "✅ Documentos procesados exitosamente!", "processing_failed": "El procesamiento falló. Ver error arriba.", "review_title": "📝 Revisar y Editar la Información Extraída", "submit_success": "✅ Solicitud enviada exitosamente!", "upload_label": "Sube todos los documentos", "other_driver_file_label": "Archivo del otro conductor: {filename}", "system_message": ("Eres un asistente de procesamiento de documentos que extrae información estructurada de múltiples documentos. Para cada documento, necesitas identificar el tipo de documento, devolver un objeto JSON con exactamente tres claves: \"type\", \"filename\", y \"data\".\n\nExtrae lo siguiente según el tipo de documento:\n- Para \"Licencia de Conducir del Estado de Nueva York\": extrae \"license_number\", \"first_name\", \"middle_name\" (si existe), \"last_name\", \"address\", \"city\", \"state\", y \"zip_code\".\n- Para \"Licencia de Conductor TLC\": extrae \"license_number\", \"first_name\", y \"last_name\".\n- Para \"Certificado de Título del Vehículo\" o \"Factura de Venta\": extrae \"VIN\", \"vehicle_make\", \"vehicle_model\", \"vehicle_year\", y \"owner_name\".\n- Para \"Carta de Certificación de la Base de Radio\": extrae \"radio_base_name\".\n- Para \"Licencia de Conducir del Otro Conductor\" (si existe): extrae \"license_number\", \"first_name\", \"middle_name\" (si existe), \"last_name\", \"address\", \"city\", \"state\", y \"zip_code\".\n\nDevuelve un único objeto JSON combinado con una matriz \"documents\" que contenga estos objetos de documento. Asegúrate de que los nombres de los campos sean consistentes y, para la dirección, devuelve campos individuales en lugar de una cadena combinada.")
+        "pull_mvr_button": "Obtener Registro(s) MVR", "mvr_section_title": "Resultados del Registro de Vehículos Motorizados (MVR)", "mvr_pull_success": "✅ Registro MVR obtenido con éxito para Licencia: {license_number}", "mvr_pull_error": "❌ Error al obtener MVR para Licencia: {license_number} - {error_message}", "mvr_pull_inprogress": "Obteniendo MVR para Licencia: {license_number}...", "mvr_api_key_missing": "Clave API de MVRNow no configurada. Configure MVRNOW_API_KEY en los secretos.", "mvr_view_raw": "Ver Datos MVR Crudos (JSON)", "mvr_tab_driver": "Info. Conductor", "mvr_tab_license": "Detalles Licencia", "mvr_tab_events": "Eventos", "mvr_tab_messages": "Mensajes", "mvr_field_name": "Nombre", "mvr_field_dob": "Fecha de Nacimiento", "mvr_field_age": "Edad", "mvr_field_gender": "Género", "mvr_field_address": "Dirección", "mvr_field_eyes": "Color de Ojos", "mvr_field_height": "Altura", "mvr_field_lic_num": "Número de Licencia", "mvr_field_class": "Clase", "mvr_field_class_desc": "Descripción de Clase", "mvr_field_issued": "Emitida", "mvr_field_expires": "Expira", "mvr_field_status": "Estado", "mvr_field_prob_expires": "Expira Probatoria", "mvr_event_subtype": "Tipo", "mvr_event_date": "Fecha", "mvr_event_location": "Lugar", "mvr_event_description": "Descripción", "mvr_event_state_desc": "Descripción Estatal", "mvr_event_points": "Puntos", "mvr_event_conviction": "Fecha Condena", "mvr_event_fine": "Multa", "mvr_event_action_clear": "Fecha Liquidación", "mvr_event_action_reason": "Razón Liquidación", "mvr_no_events": "No se encontraron eventos.", "mvr_no_messages": "No se encontraron mensajes.", "app_title": "Solicitud de Seguro TLC", "app_description": ("Esta solicitud te permite subir varios documentos a la vez:\n- **Licencia de Conducir del Estado de Nueva York (NYS)**\n- **Licencia de Conductor TLC**\n- **Certificado de Título del Vehículo o Factura de Venta**\n- **Carta de Certificación de la Base de Radio**\n\nTodos los documentos se procesan juntos mediante GPT‑4o para extraer datos estructurados. Una vez procesados, podrás revisar y editar los datos extraídos antes de enviar tu solicitud."), "additional_info_title": "Información Adicional", "owned_by_self_question": "¿Este vehículo es propiedad tuya y SOLO lo conduces tú o tu cónyuge?", "named_drivers_question": "¿Este vehículo es conducido por conductores nombrados aprobados?", "other_driver_upload_label": "Sube la Licencia de Conducir del Otro Conductor", "yes_options": ["Sí", "No"], "contact_label": "Información de Contacto", "contact_email_label": "Correo Electrónico", "contact_phone_label": "Número de Teléfono", "process_button": "Procesar Todos los Documentos", "submit_button": "Enviar Solicitud", "view_raw": "Ver Datos Extraídos (JSON)", "processing_spinner": "Procesando todos los documentos...", "processing_success": "✅ Documentos procesados exitosamente!", "processing_failed": "El procesamiento falló. Ver error arriba.", "review_title": "📝 Revisar y Editar la Información Extraída", "submit_success": "✅ Solicitud enviada exitosamente!", "upload_label": "Sube todos los documentos", "other_driver_file_label": "Archivo del otro conductor: {filename}", "system_message": ("""Eres un asistente de procesamiento de documentos que extrae información estructurada de múltiples documentos. Para cada documento, necesitas identificar el tipo de documento basado en su CONTENIDO VISUAL (no el nombre del archivo), y devolver un objeto JSON con exactamente tres claves: "type", "filename", y "data".
+
+Extrae lo siguiente según el tipo de documento:
+
+- Para "Licencia de Conducir del Estado de Nueva York": extrae "license_number", "first_name", "middle_name" (si existe), "last_name", "address", "city", "state", y "zip_code". Esta es una identificación con foto con información de licencia del Estado de Nueva York.
+
+- Para "Licencia de Conductor TLC": extrae "license_number", "first_name", y "last_name". Esta es una licencia de la Comisión de Taxis y Limusinas para conductores, generalmente con la marca TLC.
+
+- Para "Certificado de Título del Vehículo" o "Factura de Venta": extrae "VIN", "vehicle_make", "vehicle_model", "vehicle_year", y "owner_name". El título tiene un encabezado oficial del estado y detalles de propiedad.
+
+- Para "Carta de Certificación de la Base de Radio": extrae "radio_base_name". Esta es una carta comercial con membrete que confirma la afiliación del conductor con una base de despacho de radio. Puede tener un logotipo oficial de la empresa, firma e idioma de confirmación.
+
+- Para "Licencia de Conducir del Otro Conductor" (si existe): extrae "license_number", "first_name", "middle_name" (si existe), "last_name", "address", "city", "state", y "zip_code".
+
+PRESTA ESPECIAL ATENCIÓN a identificar correctamente las Cartas de Certificación de Base de Radio - estas son cartas comerciales formales que confirman que el conductor trabaja con un servicio de despacho.
+
+Devuelve un único objeto JSON combinado con una matriz "documents" que contenga estos objetos de documento. Asegúrate de que los nombres de los campos sean consistentes y, para la dirección, devuelve campos individuales en lugar de una cadena combinada. NO incluyas tipos de documentos que no estén presentes en las imágenes.""")
     }
 }
 
@@ -94,18 +126,63 @@ expected_fields = {
     "Other Driver's License": ["license_number", "first_name", "middle_name", "last_name", "address", "city", "state", "zip_code"]
 }
 
-def process_documents(sync_openai_client: OpenAI, files: List[Any], sys_message: str) -> ExtractionResult:
+def process_documents(sync_openai_client: OpenAI, files: List[Any], sys_message: str, owned_by_self: str = "No") -> ExtractionResult:
     try:
         messages = [{"role": "system", "content": sys_message}, {"role": "user", "content": []}]
-        content = [{"type": "text", "text": "Process these documents..."}]
+        
+        # Create a more detailed instruction for document analysis
+        content = [{
+            "type": "text", 
+            "text": """Process these documents and identify each one correctly. The documents could include:
+            
+1. NYS Driver License - Contains driver's license number, name, address fields, photo ID
+2. TLC Hack License - Special license for taxi/livery drivers, contains license number and name
+3. Vehicle Certificate of Title - Contains VIN, vehicle make, model, year, and owner information
+4. Bill of Sale - Document showing vehicle purchase details, contains similar info to title
+5. Radio Base Certification Letter - A letter with letterhead confirming affiliation with a radio base/dispatch service
+
+DO NOT include any document types that are not actually present in the images. For each document, return type, filename, and data fields as specified."""
+        }]
+        
+        # Process each file without attempting to detect type from filename
         for file in files:
             b64 = base64.b64encode(file.getvalue()).decode("utf-8")
-            content.extend([{"type": "text", "text": f"Filename: {file.name}"}, {"type": "image_url", "image_url": {"url": f"data:{file.type};base64,{b64}", "detail": "high"}}])
+            content.extend([
+                {"type": "text", "text": f"Filename: {file.name}"},
+                {"type": "image_url", "image_url": {"url": f"data:{file.type};base64,{b64}", "detail": "high"}}
+            ])
+        
+        # Add a reminder about correct document identification
+        content.append({
+            "type": "text", 
+            "text": "Remember to accurately identify each document type based on its visual content, not its filename. Ensure you identify any Radio Base Certification Letter if present - this is an official letter showing affiliation with a radio dispatch base."
+        })
+        
         messages[1]["content"] = content
-        response = sync_openai_client.chat.completions.create(model="gpt-4o-mini", messages=messages, response_format={"type": "json_object"}, temperature=0.1)
+        response = sync_openai_client.chat.completions.create(
+            model="gpt-4o-mini", 
+            messages=messages, 
+            response_format={"type": "json_object"}, 
+            temperature=0.1
+        )
         raw = json.loads(response.choices[0].message.content)
-        return ExtractionResult.parse_obj(normalize_raw_documents(raw)) # V1
-    except Exception as e: st.error(f"OpenAI Error: {e}"); st.code(traceback.format_exc()); raise
+        
+        # Post-process the results
+        if "documents" in raw:
+            # If user selected they're the only driver, filter out any "Other Driver's License"
+            if owned_by_self == "Yes" and any(doc.get("type") == "Other Driver's License" for doc in raw.get("documents", [])):
+                raw["documents"] = [doc for doc in raw.get("documents", []) if doc.get("type") != "Other Driver's License"]
+            
+            # Check for missing Radio Base Certification - debug info
+            has_radio_base = any(doc.get("type") == "Radio Base Certification Letter" for doc in raw.get("documents", []))
+            if not has_radio_base:
+                print("Note: Radio Base Certification Letter not found in processed documents")
+        
+        return ExtractionResult.parse_obj(normalize_raw_documents(raw))
+    except Exception as e: 
+        st.error(f"OpenAI Error: {e}")
+        st.code(traceback.format_exc())
+        raise
 
 def flatten_doc_by_expected(doc: Dict[str, Any]) -> Dict[str, Any]:
     doc_type = doc.get("type", "Unknown")
@@ -283,7 +360,7 @@ if st.button(L["process_button"], disabled=not files_to_process, key="process_do
     if files_to_process:
         with st.spinner(L["processing_spinner"]):
             try:
-                st.session_state.processed_data = process_documents(client, files_to_process, L["system_message"])
+                st.session_state.processed_data = process_documents(client, files_to_process, L["system_message"], owned_by_self=owned)
                 st.session_state.mvr_records = {} # Clear old MVRs
                 st.success(L["processing_success"])
             except Exception:
